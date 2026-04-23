@@ -1,0 +1,84 @@
+# =========================
+# GLOBAL
+# =========================
+.DS_Store
+*.pem
+*.log
+
+# =========================
+# ENV FILES
+# =========================
+.env
+.env.*
+frontend/.env*
+!*.env.example
+
+# =========================
+# GO (Backend)
+# =========================
+# Binaries
+/server
+*.exe
+*.exe~
+*.out
+
+# Build artifacts
+/build
+/dist
+
+# Test & coverage
+coverage.out
+*.coverprofile
+
+# Vendor (optional: uncomment if you use vendoring)
+# /vendor
+
+# =========================
+# DOCKER
+# =========================
+docker-compose.override.yml
+
+# =========================
+# FRONTEND (Next.js)
+# =========================
+frontend/node_modules
+frontend/.next
+frontend/out
+frontend/build
+
+# Next.js cache
+frontend/.turbo
+frontend/.cache
+
+# TypeScript
+frontend/*.tsbuildinfo
+frontend/next-env.d.ts
+
+# Package manager
+frontend/.pnp
+frontend/.pnp.*
+frontend/.yarn/*
+!frontend/.yarn/patches
+!frontend/.yarn/plugins
+!frontend/.yarn/releases
+!frontend/.yarn/versions
+
+# Logs
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
+
+# Vercel
+frontend/.vercel
+
+# =========================
+# EDITOR / IDE
+# =========================
+.vscode/
+.idea/
+
+# =========================
+# TESTS
+# =========================
+frontend/coverage

@@ -1,0 +1,557 @@
+basePath: /api/v1
+definitions:
+  controller.Response:
+    properties:
+      data: {}
+      error:
+        type: string
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  service.CreateTaskRequest:
+    properties:
+      assignee_id:
+        type: string
+      description:
+        type: string
+      due_date:
+        type: string
+      title:
+        type: string
+    type: object
+  service.LogWorkRequest:
+    properties:
+      description:
+        type: string
+      time_spent:
+        type: number
+    type: object
+  service.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  service.MoveTaskRequest:
+    properties:
+      after_task_id:
+        type: string
+      before_task_id:
+        type: string
+      destination_column_id:
+        type: string
+    type: object
+  service.RegisterRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  service.UpdateAssigneeRequest:
+    properties:
+      assignee_id:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@example.com
+    name: API Support
+    url: http://example.com/support
+  description: API for authentication, board, and task management
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  title: Backend API
+  version: 1.0.0
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and create session
+      parameters:
+      - description: Login credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/service.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.Response'
+      summary: Login user
+      tags:
+      - Auth
+  /auth/logout:
+    post:
+      description: Invalidate user session
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.Response'
+      summary: Logout user
+      tags:
+      - Auth
+  /auth/me:
+    get:
+      description: Get details of the currently authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.Response'
+      security:
+      - BearerAuth: []
+      summary: Get current user
+      tags:
+      - Auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user account
+      parameters:
+      - description: Registration details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/service.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.Response'
+      summary: Register a new user
+      tags:
+      - Auth
+  /auth/validate:
+    get:
+      description: Check if the current session is valid
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.Response'
+      summary: Validate session
+      tags:
+      - Auth
+  /board:
+    get:
+      description: Get the board with columns and tasks
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.Response'
+      security:
+      - BearerAuth: []
+      summary: Get board
+      tags:
+      - Board
+  /reports/time:
+    get:
+      description: Retrieve aggregated time spent per task and grand total
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.Response'
+      security:
+      - BearerAuth: []
+      summary: Get time report across all tasks
+      tags:
+      - Reports
+  /tasks:
+    post:
+      consumes:
+      - application/json
+      description: Create a new task in a column
+      parameters:
+      - description: Task details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/service.CreateTaskRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.Response'
+      security:
+      - BearerAuth: []
+      summary: Create a new task
+      tags:
+      - Tasks
+  /tasks/{id}:
+    get:
+      description: Get details of a specific task
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.Response'
+      security:
+      - BearerAuth: []
+      summary: Get a task by ID
+      tags:
+      - Tasks
+  /tasks/{id}/assignee:
+    patch:
+      consumes:
+      - application/json
+      description: Assign or unassign a user to a task, recording history
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Assignee details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/service.UpdateAssigneeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.Response'
+      security:
+      - BearerAuth: []
+      summary: Update task assignee
+      tags:
+      - Tasks
+  /tasks/{id}/history:
+    get:
+      description: Retrieve all assignee changes for a task, most recent first
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.Response'
+      security:
+      - BearerAuth: []
+      summary: Get assignment history for a task
+      tags:
+      - Tasks
+  /tasks/{id}/move:
+    patch:
+      consumes:
+      - application/json
+      description: Move a task using fractional indexing for ordering
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Movement details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/service.MoveTaskRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.Response'
+      security:
+      - BearerAuth: []
+      summary: Move a task to a different column or position
+      tags:
+      - Tasks
+  /tasks/{id}/worklogs:
+    get:
+      description: Retrieve all worklog entries for a task, most recent first
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.Response'
+      security:
+      - BearerAuth: []
+      summary: Get worklogs for a task
+      tags:
+      - Worklogs
+    post:
+      consumes:
+      - application/json
+      description: Create an immutable worklog entry for a task
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Worklog details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/service.LogWorkRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.Response'
+      security:
+      - BearerAuth: []
+      summary: Log time spent on a task
+      tags:
+      - Worklogs
+  /users:
+    get:
+      description: Retrieve a list of all registered users (for assignment dropdown)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controller.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.Response'
+      security:
+      - BearerAuth: []
+      summary: List all users
+      tags:
+      - Users
+securityDefinitions:
+  BearerAuth:
+    description: Bearer token authentication using JWT
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

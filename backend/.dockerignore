@@ -1,0 +1,27 @@
+.git
+.gitignore
+
+# Frontend/AI explicitly excluded
+frontend
+AI
+
+# Node/Next artifacts (if present)
+**/node_modules
+**/.next
+**/dist
+**/build
+
+# Local env / secrets
+.env
+.env.*
+
+# Editor/OS noise
+.DS_Store
+.vscode
+.idea
+
+# Go build/test artifacts
+**/*.test
+**/*.out
+coverage*
+tmp

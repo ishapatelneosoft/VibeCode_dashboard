@@ -1,0 +1,44 @@
+# Authentication Service Configuration Example
+# Copy this file to config.yaml and update values
+
+server:
+  port: "8080"
+  environment: "development" # development, staging, production
+
+database:
+  host: "localhost"
+  port: "5432"
+  user: "postgres"
+  password: "postgres"
+  name: "auth_db"
+  ssl_mode: "disable"
+  max_connections: 10
+  max_idle_connections: 2
+
+authentication:
+  session_ttl_hours: 168 # 7 days in hours
+  bcrypt_cost: 12
+  cookie:
+    name: "session_id"
+    path: "/"
+    secure: false # Set to true in production with HTTPS
+    http_only: true
+    same_site: "Strict"
+
+logging:
+  level: "info" # debug, info, warn, error
+  format: "json" # json, text
+
+security:
+  rate_limit:
+    enabled: true
+    requests_per_minute: 60
+  cors:
+    allowed_origins:
+      - "http://localhost:3000"
+    allowed_methods:
+      - "GET"
+      - "POST"
+      - "PUT"
+      - "DELETE"
+      - "OPTIONS"

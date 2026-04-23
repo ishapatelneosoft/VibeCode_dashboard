@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: auth-project-api-config
+data:
+  SERVER_PORT: "8080"
+  DB_HOST: "postgres.example.internal"
+  DB_PORT: "5432"
+  DB_NAME: "auth_db"
+  DB_SSL_MODE: "disable"
