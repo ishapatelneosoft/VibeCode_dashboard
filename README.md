@@ -15,15 +15,22 @@ Full-stack app with:
 
 ```
 .
-├── cmd/server/                 # Backend entrypoint (Go)
-├── internal/                   # Backend code (controller/service/repository/domain)
-├── migrations/                 # SQL migrations (PostgreSQL)
-├── docs/                       # Swagger artifacts (committed)
-├── tests/                      # Go tests
+├── README.md
+├── AI/                         # AI-related documentation and features
+├── backend/                    # Backend Go application
+│   ├── cmd/server/             # Backend entrypoint (Go)
+│   ├── internal/               # Backend code (controller/service/repository/domain)
+│   ├── migrations/             # SQL migrations (PostgreSQL)
+│   ├── docs/                   # Swagger artifacts (committed)
+│   ├── tests/                  # Go tests
+│   ├── k8s/                    # Kubernetes manifests (Kustomize)
+│   ├── docker/                 # Docker-related files
+│   ├── Dockerfile              # Backend Docker image
+│   ├── docker-compose.yml      # Local Postgres + backend
+│   ├── go.mod
+│   └── server
 ├── frontend/                   # Next.js frontend
-├── k8s/                        # Kubernetes manifests (Kustomize)
-├── Dockerfile                  # Backend Docker image
-└── docker-compose.yml          # Local Postgres + backend
+└── plans/                      # Project plans and architecture
 ```
 
 ## Quickstart (recommended)
@@ -32,9 +39,10 @@ Start backend + DB with Docker, run frontend locally.
 
 ### 1) Backend + Postgres (Docker)
 
-From repo root:
+From backend directory:
 
 ```bash
+cd backend
 docker-compose up --build
 ```
 
