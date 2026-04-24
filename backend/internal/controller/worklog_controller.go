@@ -119,6 +119,19 @@ func (c *WorklogController) GetWorklogs(ctx *gin.Context) {
 // @Failure 500 {object} Response
 // @Router /reports/time [get]
 func (c *WorklogController) GetTimeReport(ctx *gin.Context) {
+	// Verify user authentication (auth middleware already validates)
+	userID, exists := ctx.Get("user_id")
+	if !exists {
+		UnauthorizedResponse(ctx, gin.Error{})
+		return
+	}
+
+	// Ensure we have a valid UUID
+	if _, err := uuid.Parse(userID.(string)); err != nil {
+		UnauthorizedResponse(ctx, gin.Error{})
+		return
+	}
+
 	report, err := c.worklogService.GetTimeReport()
 	if err != nil {
 		InternalServerErrorResponse(ctx, err)

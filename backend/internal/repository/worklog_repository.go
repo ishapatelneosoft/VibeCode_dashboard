@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -88,23 +89,33 @@ func (r *WorklogRepositoryPostgres) FindByTaskID(taskID uuid.UUID) ([]*domain.Wo
 
 // GetTimeReport retrieves aggregated time spent per task across the project
 func (r *WorklogRepositoryPostgres) GetTimeReport() ([]*domain.TimeReportRow, error) {
+	// Add timeout to prevent long-running queries
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
 	query := `
+		WITH task_worklogs AS (
+			SELECT
+				task_id,
+				SUM(time_spent) AS total_hours
+			FROM worklogs
+			GROUP BY task_id
+		)
 		SELECT
 			t.id AS task_id,
 			t.title,
 			c.name AS column_name,
 			t.assignee_id,
 			u.email AS assignee_email,
-			COALESCE(SUM(w.time_spent), 0) AS total_hours
+			COALESCE(tw.total_hours, 0) AS total_hours
 		FROM tasks t
 		JOIN columns c ON t.column_id = c.id
 		LEFT JOIN users u ON t.assignee_id = u.id
-		LEFT JOIN worklogs w ON t.id = w.task_id
-		GROUP BY t.id, t.title, c.name, t.assignee_id, u.email
+		LEFT JOIN task_worklogs tw ON t.id = tw.task_id
 		ORDER BY c.name, t.title
 	`
 
-	rows, err := r.db.Query(context.Background(), query)
+	rows, err := r.db.Query(ctx, query)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query time report: %w", err)
 	}

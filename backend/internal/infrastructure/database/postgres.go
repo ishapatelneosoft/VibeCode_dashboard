@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -30,21 +31,38 @@ func NewPool(ctx context.Context, cfg Config) (*pgxpool.Pool, error) {
 		return nil, fmt.Errorf("failed to parse connection string: %w", err)
 	}
 
-	poolConfig.MaxConns = 10
-	poolConfig.MinConns = 2
-	poolConfig.MaxConnLifetime = time.Hour
-	poolConfig.MaxConnIdleTime = 30 * time.Minute
+	// Optimize for low latency and high concurrency
+	poolConfig.MaxConns = 100                           // Increased for high concurrency
+	poolConfig.MinConns = 10                            // More connections ready
+	poolConfig.MaxConnLifetime = 30 * time.Minute       // Shorter lifetime for fresh connections
+	poolConfig.MaxConnIdleTime = 5 * time.Minute        // Faster idle connection cleanup
+	poolConfig.HealthCheckPeriod = 15 * time.Second     // More frequent health checks
+	poolConfig.MaxConnLifetimeJitter = 30 * time.Second // Jitter for connection recycling
+
+	// Connection acquisition timeout
+	poolConfig.ConnConfig.ConnectTimeout = 5 * time.Second
+
+	// TCP keepalive is enabled by default in pgx
+	// Statement cache for prepared statements (reduces parse overhead)
+	// Note: pgx.QueryExecModeCacheStatement is not available in this version
+	// Using default exec mode which is optimized
 
 	pool, err := pgxpool.NewWithConfig(ctx, poolConfig)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create connection pool: %w", err)
 	}
 
-	// Test connection
-	if err := pool.Ping(ctx); err != nil {
+	// Test connection with timeout
+	testCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+
+	if err := pool.Ping(testCtx); err != nil {
 		pool.Close()
 		return nil, fmt.Errorf("failed to ping database: %w", err)
 	}
+
+	log.Printf("Database connection pool established: max=%d, min=%d",
+		poolConfig.MaxConns, poolConfig.MinConns)
 
 	return pool, nil
 }

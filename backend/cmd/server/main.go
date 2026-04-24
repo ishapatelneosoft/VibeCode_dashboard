@@ -60,7 +60,10 @@ func main() {
 	columnRepo := repository.NewColumnRepositoryPostgres(db)
 	taskRepo := repository.NewTaskRepositoryPostgres(db)
 	assignmentHistoryRepo := repository.NewAssignmentHistoryRepositoryPostgres(db)
-	worklogRepo := repository.NewWorklogRepositoryPostgres(db)
+
+	// Create cached worklog repository for better performance
+	baseWorklogRepo := repository.NewWorklogRepositoryPostgres(db)
+	worklogRepo := repository.NewCachedWorklogRepository(baseWorklogRepo, 5*time.Minute)
 
 	// Initialize services
 	authService := service.NewAuthService(
@@ -263,6 +266,7 @@ func setupRouter(
 		// Report routes (protected)
 		reports := v1.Group("/reports")
 		reports.Use(authMiddleware.RequireAuth())
+		reports.Use(middleware.CacheMiddleware(3 * time.Minute))
 		{
 			reports.GET("/time", worklogController.GetTimeReport)
 		}
